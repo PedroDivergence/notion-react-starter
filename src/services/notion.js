@@ -11,7 +11,8 @@ const initialState = {
   selectedDevice: null,
   status: null,
   user: null,
-  loadingUser: true
+  loadingUser: true,
+  info: null
 };
 
 export const NotionContext = createContext();
@@ -40,7 +41,7 @@ function useProvideNotion() {
     ...initialState
   });
 
-  const { user, selectedDevice } = state;
+  const { user, selectedDevice, info } = state;
 
   const setSelectedDevice = useCallback((selectedDevice) => {
     setState((state) => ({
@@ -110,6 +111,25 @@ function useProvideNotion() {
       setState({ ...initialState, loadingUser: false });
     });
   }, []);
+
+  useEffect(() => {
+    if(!selectedDevice) return;
+    
+
+    //GET EEG:
+
+    const liveEEGsubscription = notion.brainwaves("rawUnfiltered").subscribe((brainwaves) => {
+    console.log(brainwaves);
+    });
+    
+
+    //Unsubscribe from EEG:
+    return () => {
+      liveEEGsubscription.unsubscribe();
+    }
+
+
+  },[selectedDevice]);
 
   return {
     ...state,
